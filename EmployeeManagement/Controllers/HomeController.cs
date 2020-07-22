@@ -17,11 +17,29 @@ namespace EmployeeManagement.Controllers
 
         public IActionResult Index()
         {
+            return View(_employeeRepository.GetAllEmployees());
+        }
+
+        public IActionResult Details(int id)
+        {
+            var model = _employeeRepository.GetEmployee(id);
+            return View(model);
+        }
+
+        public IActionResult Create()
+        {
             return View();
         }
 
-        public IActionResult Details()
+        [HttpPost]
+        public IActionResult Create(Employee employee)
         {
+            if (ModelState.IsValid)
+            {
+                Employee newEmployee = _employeeRepository.Add(employee);
+                return RedirectToAction("details", new { id = newEmployee.Id });
+            }
+
             return View();
         }
     }
