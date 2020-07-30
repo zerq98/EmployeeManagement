@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace EmployeeManagement.Models
 {
@@ -13,5 +9,9 @@ namespace EmployeeManagement.Models
         IEnumerable<Employee> GetAllEmployees();
 
         Employee Add(Employee employee);
+
+        Employee Update(Employee employeeChanges);
+
+        Employee Delete(int id);
     }
 }
