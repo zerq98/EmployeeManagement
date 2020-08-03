@@ -66,6 +66,7 @@ namespace EmployeeManagement
             services.AddRazorPages();
             services.AddScoped<IEmployeeRepository, SqlEmployeeRepository>();
             services.AddSingleton<IAuthorizationHandler, CanEditOnlyOtherAdminRolesAndClaimsHandler>();
+            services.AddSingleton<IAuthorizationHandler, SuperAdminHandler>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

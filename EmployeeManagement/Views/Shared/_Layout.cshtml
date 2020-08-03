@@ -42,7 +42,7 @@
                     <li class="nav-item">
                         <a asp-action="index" asp-controller="home" class="nav-link">List</a>
                     </li>
-                    @if (_signInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+                    @if (_signInManager.IsSignedIn(User) && (User.IsInRole("Admin") || User.IsInRole("Super Admin")))
                     {
                         <li class="nav-item">
                             <a asp-action="Create" asp-controller="home" class="nav-link">Create</a>
