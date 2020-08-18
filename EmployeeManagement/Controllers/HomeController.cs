@@ -1,11 +1,14 @@
 ﻿using EmployeeManagement.Models;
+using EmployeeManagement.Security;
 using EmployeeManagement.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace EmployeeManagement.Controllers
 {
@@ -15,33 +18,44 @@ namespace EmployeeManagement.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IWebHostEnvironment _environment;
+        private readonly IDataProtector _protector;
 
         public HomeController(IEmployeeRepository employeeRepository,
                               IWebHostEnvironment environment,
-                              ILogger<HomeController> logger)
+                              ILogger<HomeController> logger,
+                              IDataProtectionProvider dataProtectionProvider,
+                              DataProtectionPurposeStrings dataProtectionPurposeStrings)
         {
             _employeeRepository = employeeRepository;
             _environment = environment;
             _logger = logger;
+            _protector = dataProtectionProvider.CreateProtector(dataProtectionPurposeStrings.EmployeeIdRouteValue);
         }
 
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Index()
         {
-            return View(_employeeRepository.GetAllEmployees());
+            return View(_employeeRepository.GetAllEmployees()
+                                           .Select(e =>
+                                           {
+                                                e.EncryptedId = _protector.Protect(e.Id.ToString());
+                                                return e;
+                                           }));
         }
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Details(int? id)
+        public IActionResult Details(string id)
         {
-            var model = _employeeRepository.GetEmployee(id.Value);
+            int employeeId = Convert.ToInt32(_protector.Unprotect(id));
+
+            var model = _employeeRepository.GetEmployee(employeeId);
 
             if (model == null)
             {
                 Response.StatusCode = 404;
-                return View("EmployeeNotFound", id.Value);
+                return View("EmployeeNotFound", employeeId);
             }
 
             return View(model);

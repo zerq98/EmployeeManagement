@@ -42,7 +42,7 @@
                     <li class="nav-item">
                         <a asp-action="index" asp-controller="home" class="nav-link">List</a>
                     </li>
-                    @if (_signInManager.IsSignedIn(User) && (User.IsInRole("Admin") || User.IsInRole("Super Admin")))
+                    @if (_signInManager.IsSignedIn(User))
                     {
                         <li class="nav-item">
                             <a asp-action="Create" asp-controller="home" class="nav-link">Create</a>
@@ -53,8 +53,13 @@
                                 Manage
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                <a asp-action="ListRoles" asp-controller="administration" class="dropdown-item">Roles</a>
-                                <a asp-action="ListUsers" asp-controller="administration" class="dropdown-item">Users</a>
+                                @if (User.IsInRole("Admin") || User.IsInRole("Super Admin"))
+                                {
+                                    <a asp-action="ListRoles" asp-controller="administration" class="dropdown-item">Roles</a>
+                                    <a asp-action="ListUsers" asp-controller="administration" class="dropdown-item">Users</a>
+                                }
+
+                                <a asp-action="ChangePassword" asp-controller="account" class="dropdown-item">Password</a>
                             </div>
                         </li>
                     }

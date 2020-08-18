@@ -338,4 +338,4 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
-/EmployeeManagement/TextFile.txt
+/EmployeeManagement/Credentials.txt

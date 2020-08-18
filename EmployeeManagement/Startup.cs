@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
 
 namespace EmployeeManagement
 {
@@ -26,19 +27,47 @@ namespace EmployeeManagement
         {
             services.AddDbContext<AppDbContext>(options =>
                                 options.UseSqlServer(_configuration.GetConnectionString("Default")));
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<AppDbContext>();
-            services.Configure<IdentityOptions>(options =>
+            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.Password.RequiredLength = 10;
                 options.Password.RequiredUniqueChars = 3;
                 options.Password.RequireNonAlphanumeric = true;
-            });
+
+                options.SignIn.RequireConfirmedEmail = true;
+
+                options.Tokens.EmailConfirmationTokenProvider = "CustomEmailConfirmation";
+
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromDays(1);
+            })
+                .AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders()
+                .AddTokenProvider<CustomEmailConfirmationTokenProvider
+                <ApplicationUser>>("CustomEmailConfirmation");
+
+            services.Configure<DataProtectionTokenProviderOptions>(o =>
+                                o.TokenLifespan = TimeSpan.FromHours(5));
+
+            services.Configure<CustomEmailConfirmationTokenProviderOptions>(o =>
+                                o.TokenLifespan = TimeSpan.FromDays(3));
 
             services.ConfigureApplicationCookie(options =>
             {
                 options.AccessDeniedPath = new PathString("/Administration/AccessDenied");
             });
+
+            services
+                .AddAuthentication()
+                .AddGoogle(options =>
+                {
+                    options.ClientId = _configuration["Google:ClientId"];
+                    options.ClientSecret = _configuration["Google:ClientSecret"];
+                })
+                .AddFacebook(options =>
+                {
+                    options.AppId = _configuration["Facebook:AppId"];
+                    options.AppSecret = _configuration["Facebook:AppSecret"];
+                });
 
             services.AddAuthorization(options =>
             {
@@ -59,6 +88,7 @@ namespace EmployeeManagement
                                 .Build();
 
                 options.Filters.Add(new AuthorizeFilter(policy));
+
             }).AddXmlSerializerFormatters();
 
             services.AddHttpContextAccessor();
@@ -67,6 +97,7 @@ namespace EmployeeManagement
             services.AddScoped<IEmployeeRepository, SqlEmployeeRepository>();
             services.AddSingleton<IAuthorizationHandler, CanEditOnlyOtherAdminRolesAndClaimsHandler>();
             services.AddSingleton<IAuthorizationHandler, SuperAdminHandler>();
+            services.AddSingleton<DataProtectionPurposeStrings>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
