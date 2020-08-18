@@ -39,8 +39,8 @@ namespace EmployeeManagement.Controllers
             return View(_employeeRepository.GetAllEmployees()
                                            .Select(e =>
                                            {
-                                                e.EncryptedId = _protector.Protect(e.Id.ToString());
-                                                return e;
+                                               e.EncryptedId = _protector.Protect(e.Id.ToString());
+                                               return e;
                                            }));
         }
 

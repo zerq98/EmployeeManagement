@@ -88,7 +88,6 @@ namespace EmployeeManagement
                                 .Build();
 
                 options.Filters.Add(new AuthorizeFilter(policy));
-
             }).AddXmlSerializerFormatters();
 
             services.AddHttpContextAccessor();

@@ -357,7 +357,7 @@ namespace EmployeeManagement.Controllers
 
             var model = new List<UserRolesViewModel>();
 
-            foreach(var role in await _roleManager.Roles.ToListAsync())
+            foreach (var role in await _roleManager.Roles.ToListAsync())
             {
                 var userRolesViewModel = new UserRolesViewModel
                 {
@@ -365,7 +365,7 @@ namespace EmployeeManagement.Controllers
                     RoleName = role.Name,
                 };
 
-                if(await _userManager.IsInRoleAsync(user, role.Name))
+                if (await _userManager.IsInRoleAsync(user, role.Name))
                 {
                     userRolesViewModel.IsSelected = true;
                 }
@@ -437,7 +437,7 @@ namespace EmployeeManagement.Controllers
                 UserId = userId
             };
 
-            foreach(Claim claim in ClaimsStore.AllClaims)
+            foreach (Claim claim in ClaimsStore.AllClaims)
             {
                 UserClaim userClaim = new UserClaim
                 {
